@@ -1,0 +1,2 @@
+D:\OpenGL\Projects\LearnProject\x64\Debug\LearnProject.exe
+D:\OpenGL\Projects\opengl\x64\Debug\LearnProject.exe
