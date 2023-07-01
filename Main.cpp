@@ -34,31 +34,31 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Inform that we want use Core-Profile
 
 	GLFWwindow* Window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, " OpenGL by Savich Eugene", nullptr, nullptr);
+	if (!Window)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
 
-	float vertices[] = {
-		-0.5f, -0.5f, 0.f,
-		0.5f, -0.5f, 0.f,
-		0.f, 0.5f, 0.f
-	};
+	// Make Window's context as main context for current thread
+	glfwMakeContextCurrent(Window);
 
-	// Create OpenGL Vertex Buffer Object
-	unsigned int VBO;
-	// Set VBO identificator for the object
-	glGenBuffers(1, &VBO);
-	// Assign VBO to GL_ARRAY_BUFFER (type of Vertex Buffer object)
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// Copy vertex data to the buffer's memory
-	// GL_STREAM_DRAW - set data only once and use only once by graphic process
-	// GL_STATIC_DRAW - set data only once and use multiple times
-	// GL_DYNAMIC_DRAW - set data and use it multiple times
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// Assign a callback function on the change window size event
+	glfwSetFramebufferSizeCallback(Window, framebuffer_size_callback);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
 
 	// Create and Compile Vertex Shader
-	unsigned int VertexShader;
-	VertexShader = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	// Set source code of the shared's object and compile it
 	glShaderSource(VertexShader, 1, &VertexShaderSource, NULL);
 	glCompileShader(VertexShader);
+
 	// Check compilation errors for vertex shader
 	int Success;
 	char InfoLog[512];
@@ -70,10 +70,10 @@ int main()
 	}
 
 	// Create and Compile Fragment Shader
-	unsigned int FragmentShader;
-	FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	unsigned int FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(FragmentShader, 1, &FragmentShaderSource, NULL);
 	glCompileShader(FragmentShader);
+
 	// Check compilation errors for fragment shader
 	glGetShaderiv(FragmentShader, GL_COMPILE_STATUS, &Success);
 	if (!Success)
@@ -83,12 +83,13 @@ int main()
 	}
 
 	// Create Shader Programm
-	unsigned int ShaderProgram;
-	ShaderProgram = glCreateProgram();
+	unsigned int ShaderProgram = glCreateProgram();
+
 	// Attach created Shaders to the Shader Program
 	glAttachShader(ShaderProgram, VertexShader);
 	glAttachShader(ShaderProgram, FragmentShader);
 	glLinkProgram(ShaderProgram);
+
 	// Check attaching errors
 	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
 	if (!Success)
@@ -96,33 +97,41 @@ int main()
 		glGetProgramInfoLog(ShaderProgram, 512, NULL, InfoLog);
 		std::cout << "ERROR::SHADERPROGRAM::LINK_FAILED\n" << InfoLog << std::endl;
 	}
-	// Activate result of linking shaders to the Shader Program
-	glUseProgram(ShaderProgram);
 
 	// Clear shader objects after we attached them to the SP, we don't need them anymore.
 	glDeleteShader(VertexShader);
 	glDeleteShader(FragmentShader);
 
-	if (!Window)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	
-	// Make Window's context as main context for current thread
-	glfwMakeContextCurrent(Window);
+	float vertices[] = {
+		-0.5f, -0.5f, 0.f,
+		0.5f, -0.5f, 0.f,
+		0.f, 0.5f, 0.f
+	};
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
+	// Create Vertex Array Object and Vertex Buffer Object
+	unsigned int VBO, VAO;
+	// Set VAO & VBO identificators for the object
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
 
-	glViewport(0, 0, WIN_WIDTH, WIN_HEIGHT);
+	glBindVertexArray(VAO);
 
-	// Assign a callback function on the change window size event
-	glfwSetFramebufferSizeCallback(Window, framebuffer_size_callback);
+	// Assign VBO to GL_ARRAY_BUFFER (type of Vertex Buffer object)
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	// Copy vertex data to the buffer's memory
+	// GL_STREAM_DRAW - set data only once and use only once by graphic process
+	// GL_STATIC_DRAW - set data only once and use multiple times
+	// GL_DYNAMIC_DRAW - set data and use it multiple times
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// Linking Vertex Attributes
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// Draw Triangle from Vertex Array Object
+	glBindVertexArray(VAO);
 
 	// Render loop
 	while (!glfwWindowShouldClose(Window)) // If the user tried to close the window - return true and finish the loop
@@ -134,12 +143,20 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.2f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Draw triangles
+		glUseProgram(ShaderProgram);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
 		// Spaps color buffer and displays it on the screen
 		glfwSwapBuffers(Window);
-
 		// Observe if initialized any events (input key, mouse move, etc.)
 		glfwPollEvents();
 	}
+	
+	// Free resources
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 
 	// Remove/Clear GLFW resources
 	glfwTerminate();
