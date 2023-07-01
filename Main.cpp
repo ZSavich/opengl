@@ -103,9 +103,15 @@ int main()
 	glDeleteShader(FragmentShader);
 
 	float vertices[] = {
-		-0.5f, -0.5f, 0.f,
-		0.5f, -0.5f, 0.f,
-		0.f, 0.5f, 0.f
+		0.5f, 0.5f, 0.f, // Top Right Vertex
+		0.5f, -0.5f, 0.f, // Bottom Right Vertex 
+		-0.5f, -0.5f, 0.f, // Bottom Left Vertex
+		-0.5f, 0.5f, 0.f // Top Left Vertex
+	};
+
+	unsigned int indices[] = {
+		0, 1, 3,// First triangle
+		1, 2, 3 // Second triangle
 	};
 
 	// Create Vertex Array Object and Vertex Buffer Object
@@ -118,6 +124,13 @@ int main()
 
 	// Assign VBO to GL_ARRAY_BUFFER (type of Vertex Buffer object)
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	// Create Element Object Buffer
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Copy vertex data to the buffer's memory
 	// GL_STREAM_DRAW - set data only once and use only once by graphic process
@@ -133,6 +146,8 @@ int main()
 	// Draw Triangle from Vertex Array Object
 	glBindVertexArray(VAO);
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	// Render loop
 	while (!glfwWindowShouldClose(Window)) // If the user tried to close the window - return true and finish the loop
 	{
@@ -146,7 +161,9 @@ int main()
 		// Draw triangles
 		glUseProgram(ShaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		// Spaps color buffer and displays it on the screen
 		glfwSwapBuffers(Window);
