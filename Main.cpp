@@ -5,6 +5,8 @@
 
 void framebuffer_size_callback(GLFWwindow* Window, int Width, int Height);
 void processInput(GLFWwindow* Window);
+void drawRectangle(GLFWwindow* Window, const bool bFill);
+void drawTwoTriangles(GLFWwindow* Window);
 
 // Constants
 const unsigned int WIN_WIDTH = 800;
@@ -19,11 +21,19 @@ const char* VertexShaderSource = "#version 330 core\n"
 "}\n";
 
 // Source code of the simle fragment shader
-const char* FragmentShaderSource = "#version 330 core\n"
+const char* BlueFragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
-"    FragColor = vec4(1.f, 0.5f, 0.2f, 1.f);\n"
+"    FragColor = vec4(0.35f, 0.33f, 1.f, 1.f);\n"
+"}\n";
+
+// Source code of the simle fragment shader
+const char* YellowFragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"    FragColor = vec4(0.98f, 1.f, 0.25f, 1.f);\n"
 "}\n";
 
 int main()
@@ -53,6 +63,31 @@ int main()
 		return -1;
 	}
 
+	//drawRectangle(Window, false);
+	drawTwoTriangles(Window); // Assignment 1
+
+	// Remove/Clear GLFW resources
+	glfwTerminate();
+
+	return 0;
+}
+
+void framebuffer_size_callback(GLFWwindow* Window, int Width, int Height)
+{
+	glViewport(0, 0, Width, Height);
+}
+
+void processInput(GLFWwindow* Window)
+{
+	// Check if the user pressed the ESC key. Returns GLFW_PRESS or GLFW_RELEASE
+	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(Window, true);
+	}
+}
+
+void drawRectangle(GLFWwindow* Window, const bool bFill)
+{
 	// Create and Compile Vertex Shader
 	unsigned int VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	// Set source code of the shared's object and compile it
@@ -71,7 +106,7 @@ int main()
 
 	// Create and Compile Fragment Shader
 	unsigned int FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragmentShader, 1, &FragmentShaderSource, NULL);
+	glShaderSource(FragmentShader, 1, &BlueFragmentShaderSource, NULL);
 	glCompileShader(FragmentShader);
 
 	// Check compilation errors for fragment shader
@@ -146,7 +181,7 @@ int main()
 	// Draw Triangle from Vertex Array Object
 	glBindVertexArray(VAO);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, bFill ? GL_FILL : GL_LINE);
 
 	// Render loop
 	while (!glfwWindowShouldClose(Window)) // If the user tried to close the window - return true and finish the loop
@@ -170,27 +205,138 @@ int main()
 		// Observe if initialized any events (input key, mouse move, etc.)
 		glfwPollEvents();
 	}
-	
+
 	// Free resources
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-
-	// Remove/Clear GLFW resources
-	glfwTerminate();
-
-	return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* Window, int Width, int Height)
+void drawTwoTriangles(GLFWwindow* Window)
 {
-	glViewport(0, 0, Width, Height);
-}
+	unsigned int VertexShader = glCreateShader(GL_VERTEX_SHADER);
 
-void processInput(GLFWwindow* Window)
-{
-	// Check if the user pressed the ESC key. Returns GLFW_PRESS or GLFW_RELEASE
-	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	glShaderSource(VertexShader, 1, &VertexShaderSource, NULL);
+	glCompileShader(VertexShader);
+
+	int Success;
+	char InfoLog[512];
+	glGetShaderiv(VertexShader, GL_COMPILE_STATUS, &Success);
+	if (!Success)
 	{
-		glfwSetWindowShouldClose(Window, true);
+		glGetShaderInfoLog(VertexShader, 512, NULL, InfoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << InfoLog << std::endl;
 	}
+
+	// Blue Fragment Shader
+	unsigned int BlueFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(BlueFragmentShader, 1, &BlueFragmentShaderSource, NULL);
+	glCompileShader(BlueFragmentShader);
+
+	glGetShaderiv(BlueFragmentShader, GL_COMPILE_STATUS, &Success);
+	if (!Success)
+	{
+		glGetShaderInfoLog(BlueFragmentShader, 512, NULL, InfoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILAION_FAILED\n" << InfoLog << std::endl;
+	}
+
+	// Yellow Fragment Shader
+	unsigned int YellowFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(YellowFragmentShader, 1, &YellowFragmentShaderSource, NULL);
+	glCompileShader(YellowFragmentShader);
+
+	glGetShaderiv(YellowFragmentShader, GL_COMPILE_STATUS, &Success);
+	if (!Success)
+	{
+		glGetShaderInfoLog(YellowFragmentShader, 512, NULL, InfoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << InfoLog << std::endl;
+	}
+
+	// Create First Shader Program for Blue Fragment Shader
+	unsigned int FirstShaderProgram = glCreateProgram();
+
+	glAttachShader(FirstShaderProgram, VertexShader);
+	glAttachShader(FirstShaderProgram, BlueFragmentShader);
+	glLinkProgram(FirstShaderProgram);
+
+	glGetProgramiv(FirstShaderProgram, GL_LINK_STATUS, &Success);
+	if (!Success)
+	{
+		glGetProgramInfoLog(FirstShaderProgram, 512, NULL, InfoLog);
+		std::cout << "ERROR::SHADERPROGRAM::LINK_FAILED\n" << InfoLog << std::endl;
+	}
+
+
+	// Create Second Shader Program for Yellow Fragment Shader
+	unsigned int SecondShaderProgram = glCreateProgram();
+
+	glAttachShader(SecondShaderProgram, VertexShader);
+	glAttachShader(SecondShaderProgram, YellowFragmentShader);
+	glLinkProgram(SecondShaderProgram);
+
+	glGetProgramiv(SecondShaderProgram, GL_LINK_STATUS, &Success);
+	if (!Success)
+	{
+		glGetProgramInfoLog(SecondShaderProgram, 512, NULL, InfoLog);
+		std::cout << "ERROR::SHADERPROGRAM::LINK_FAILED\n" << InfoLog << std::endl;
+	}
+
+	glDeleteShader(BlueFragmentShader);
+	glDeleteShader(YellowFragmentShader);
+	glDeleteShader(VertexShader);
+
+	float FirstTriangle[] = {
+		0.5f, 0.5f, 0.f,
+		0.5f, -0.5f, 0.f,
+		-0.5f, -0.5f, 0.f
+	};
+
+	float SecondTriangle[] = {
+		-0.6f, 0.5f, 0.f,
+		0.4f, 0.5f, 0.f,
+		-0.6f, -0.5f, 0.f
+	};
+
+	unsigned int VBOs[2], VAOs[2];
+	glGenVertexArrays(2, VAOs);
+	glGenBuffers(2, VBOs);
+
+	// Setup First Triangle
+	glBindVertexArray(VAOs[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(FirstTriangle), FirstTriangle, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Setup Second Triangle
+	glBindVertexArray(VAOs[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SecondTriangle), SecondTriangle, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Render loop
+	while (!glfwWindowShouldClose(Window))
+	{
+		processInput(Window);
+
+		glClearColor(0.5f, 0.5f, 0.2f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Draw Blue Triangle
+		glUseProgram(FirstShaderProgram);
+		glBindVertexArray(VAOs[0]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		// Draw Yellow Triangle
+		glUseProgram(SecondShaderProgram);
+		glBindVertexArray(VAOs[1]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glfwSwapBuffers(Window);
+		glfwPollEvents();
+	}
+
+	// Free resources
+	glDeleteVertexArrays(2, VAOs);
+	glDeleteBuffers(2, VBOs);
 }
