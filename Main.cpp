@@ -25,10 +25,10 @@ const char* VertexShaderSource = "#version 330 core\n"
 // Source code of the simle fragment shader
 const char* BlueFragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
-"in vec4 vertexColor;\n"
+"uniform vec4 OurColor;\n"
 "void main()\n"
 "{\n"
-"    FragColor = vertexColor;\n"
+"    FragColor = OurColor;\n"
 "}\n";
 
 // Source code of the simle fragment shader
@@ -67,8 +67,8 @@ int main()
 		return -1;
 	}
 
-	//drawRectangle(Window, false);
-	drawTwoTriangles(Window); // Assignment 1
+	drawRectangle(Window, true);
+	//drawTwoTriangles(Window); // Assignment 1
 
 	// Remove/Clear GLFW resources
 	glfwTerminate();
@@ -197,8 +197,14 @@ void drawRectangle(GLFWwindow* Window, const bool bFill)
 		glClearColor(0.5f, 0.5f, 0.2f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Update Fragment Color Uniform Variable
+		float TimeValue = glfwGetTime();
+		float GreenValue = (sin(TimeValue) / 2.f) + 0.5f;
+		int VertexColorLocation = glGetUniformLocation(ShaderProgram, "OurColor");
+
 		// Draw triangles
 		glUseProgram(ShaderProgram);
+		glUniform4f(VertexColorLocation, 0.f, GreenValue, 0.f, 1.f);
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
