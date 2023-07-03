@@ -15,25 +15,29 @@ const unsigned int WIN_HEIGHT = 600;
 // Source code of the simple vertex shader
 const char* VertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"out vec4 vertexColor;\n"
 "void main()\n"
 "{\n"
-"    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.f);\n"
+"    gl_Position = vec4(aPos, 1.f);\n"
+"	 vertexColor = vec4(0.5f, 0.f, 0.f, 1.f);\n"
 "}\n";
 
 // Source code of the simle fragment shader
 const char* BlueFragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
+"in vec4 vertexColor;\n"
 "void main()\n"
 "{\n"
-"    FragColor = vec4(0.35f, 0.33f, 1.f, 1.f);\n"
+"    FragColor = vertexColor;\n"
 "}\n";
 
 // Source code of the simle fragment shader
 const char* YellowFragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
+"in vec4 vertexColor;\n"
 "void main()\n"
 "{\n"
-"    FragColor = vec4(0.98f, 1.f, 0.25f, 1.f);\n"
+"    FragColor = vertexColor;\n"
 "}\n";
 
 int main()
