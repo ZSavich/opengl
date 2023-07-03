@@ -22,6 +22,17 @@ const char* VertexShaderSource = "#version 330 core\n"
 "	 vertexColor = vec4(0.5f, 0.f, 0.f, 1.f);\n"
 "}\n";
 
+// Source code of the gradient vertex shader
+const char* GradientVertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 OutColor;\n"
+"void main()\n"
+"{\n"
+"	gl_Position = vec4(aPos, 1.f);\n"
+"	OutColor = aColor;\n"
+"};\n";
+
 // Source code of the simle fragment shader
 const char* BlueFragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
@@ -39,6 +50,15 @@ const char* YellowFragmentShaderSource = "#version 330 core\n"
 "{\n"
 "    FragColor = vertexColor;\n"
 "}\n";
+
+// Source code of the Gradient Fragment Shader
+const char* GradientFragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"in vec3 OutColor;\n"
+"void main()\n"
+"{\n"
+"	FragColor = vec4(OutColor, 1.f);\n"
+"};\n";
 
 int main()
 {
@@ -95,7 +115,7 @@ void drawRectangle(GLFWwindow* Window, const bool bFill)
 	// Create and Compile Vertex Shader
 	unsigned int VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	// Set source code of the shared's object and compile it
-	glShaderSource(VertexShader, 1, &VertexShaderSource, NULL);
+	glShaderSource(VertexShader, 1, &GradientVertexShaderSource, NULL);
 	glCompileShader(VertexShader);
 
 	// Check compilation errors for vertex shader
@@ -110,7 +130,7 @@ void drawRectangle(GLFWwindow* Window, const bool bFill)
 
 	// Create and Compile Fragment Shader
 	unsigned int FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragmentShader, 1, &BlueFragmentShaderSource, NULL);
+	glShaderSource(FragmentShader, 1, &GradientFragmentShaderSource, NULL);
 	glCompileShader(FragmentShader);
 
 	// Check compilation errors for fragment shader
@@ -142,15 +162,14 @@ void drawRectangle(GLFWwindow* Window, const bool bFill)
 	glDeleteShader(FragmentShader);
 
 	float vertices[] = {
-		0.5f, 0.5f, 0.f, // Top Right Vertex
-		0.5f, -0.5f, 0.f, // Bottom Right Vertex 
-		-0.5f, -0.5f, 0.f, // Bottom Left Vertex
-		-0.5f, 0.5f, 0.f // Top Left Vertex
+		// Coordinates		// Colors
+		 0.5f, -0.5f, 0.f,	1.f, 0.f, 0.f, // Bottom Right Vertex
+		-0.5f, -0.5f, 0.f,	0.f, 1.f, 0.f, // Bottom Left Vertex
+		 0.f, 0.5f, 0.f,	0.f, 0.f, 1.f  // Top Vertex
 	};
 
 	unsigned int indices[] = {
 		0, 1, 3,// First triangle
-		1, 2, 3 // Second triangle
 	};
 
 	// Create Vertex Array Object and Vertex Buffer Object
@@ -177,9 +196,13 @@ void drawRectangle(GLFWwindow* Window, const bool bFill)
 	// GL_DYNAMIC_DRAW - set data and use it multiple times
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Linking Vertex Attributes
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// Linking Coordinate Attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	// Linking Color Attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	// Draw Triangle from Vertex Array Object
@@ -197,17 +220,19 @@ void drawRectangle(GLFWwindow* Window, const bool bFill)
 		glClearColor(0.5f, 0.5f, 0.2f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Update Fragment Color Uniform Variable
-		float TimeValue = glfwGetTime();
-		float GreenValue = (sin(TimeValue) / 2.f) + 0.5f;
-		int VertexColorLocation = glGetUniformLocation(ShaderProgram, "OurColor");
-
-		// Draw triangles
+		// Activate Shader Program
 		glUseProgram(ShaderProgram);
-		glUniform4f(VertexColorLocation, 0.f, GreenValue, 0.f, 1.f);
+
+		// Update Fragment Color Uniform Variable
+		//float TimeValue = glfwGetTime();
+		//float GreenValue = (sin(TimeValue) / 2.f) + 0.5f;
+		//int VertexColorLocation = glGetUniformLocation(ShaderProgram, "OurColor"); // If returns "-1" - can't find location.
+		//glUniform4f(VertexColorLocation, 0.f, GreenValue, 0.f, 1.f); // We can set Uniform variable only for an active shader program
+
+		// Start Render
 		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		// Spaps color buffer and displays it on the screen
