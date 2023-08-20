@@ -107,3 +107,9 @@ void Shader::SetFloat(const std::string& Name, float Value) const
 	int OffsetLocation = glGetUniformLocation(ID, Name.c_str());
 	glUniform1f(OffsetLocation, Value);
 }
+
+void Shader::SetMat(const std::string& Name, const GLfloat* ValuePtr) const
+{
+	unsigned int TransformLoc = glGetUniformLocation(ID, Name.c_str());
+	glUniformMatrix4fv(TransformLoc, 1, GL_FALSE, ValuePtr);
+}

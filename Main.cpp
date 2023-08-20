@@ -4,6 +4,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stbImage/stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Shader.h"
 
 #include <iostream>
@@ -153,6 +157,10 @@ int main()
 	glUniform1i(glGetUniformLocation(OurShader.ID, "texture1"), 0);
 	OurShader.SetInt("texture2", 1);
 
+	// Rotate and Scale
+	//glm::mat4 Trans = glm::mat4(1.f);
+	//Trans = glm::rotate(Trans, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+	//Trans = glm::scale(Trans, glm::vec3(0.5f, 0.5f, 0.5f));
 
 	while (!glfwWindowShouldClose(Window)) 
 	{
@@ -168,8 +176,26 @@ int main()
 
 		OurShader.SetFloat("transl", MIX_MODIFICATOR);
 
+		// Rotate and Move
+		glm::mat4 TransRot = glm::mat4(1.f);
+		TransRot = glm::translate(TransRot, glm::vec3(0.5f, -0.5f, 0.f));
+		TransRot = glm::rotate(TransRot, (float)glfwGetTime(), glm::vec3(0.f, 0.f, 1.f));
+
+		OurShader.SetMat("Transform", glm::value_ptr(TransRot));
+
 		OurShader.Use();
 		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+		// Make a copy of the figure
+		TransRot = glm::mat4(1.f);
+		TransRot = glm::translate(TransRot, glm::vec3(-0.5f, 0.5f, 0.f));
+		const float SinScale = sin(glfwGetTime());
+		TransRot = glm::scale(TransRot, glm::vec3(SinScale));
+
+		OurShader.SetMat("Transform", glm::value_ptr(TransRot));
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(Window);

@@ -8,9 +8,11 @@ out vec3 OurColor;
 out vec3 OutPos;
 out vec2 TexCoord;
 
+uniform mat4 Transform;
+
 void main()
 {
-	gl_Position = vec4(aPos, 1.f);
+	gl_Position = Transform * vec4(aPos, 1.f);
 	OurColor = aColor;
 	OutPos = aPos;
 	TexCoord = aTexCoord;

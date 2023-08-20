@@ -27,6 +27,7 @@ public:
 	void SetBool(const std::string& Name, bool Value) const;
 	void SetInt(const std::string& Name, int Value) const;
 	void SetFloat(const std::string& Name, float Value) const;
+	void SetMat(const std::string& Name, const GLfloat* ValuePtr) const;
 };
 
 #endif
