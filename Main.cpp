@@ -51,16 +51,66 @@ int main()
 	Shader OurShader("./shader.vs", "./shader.fgs");
 
 	float vertices[] = {
-		// Coordinates		// Colors		// Texture Coordinates
-		 0.5f,  0.5f, 0.f,	1.f, 0.f, 0.f,	1.f, 1.f,  // Top Right Vertex
-		 0.5f, -0.5f, 0.f,	0.f, 1.f, 0.f,	1.f, 0.f,  // Bottom Right Vertex
-		-0.5f, -0.5f, 0.f,	0.f, 0.f, 1.f,	0.f, 0.f, // Bottom Left Vertex
-		-0.5f,  0.5f, 0.f,  1.f, 1.f, 0.f,  0.f, 1.f // Top Left Vertex
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
 	unsigned int indices[] = {
 		0, 1, 3, // First Triangle
 		1, 2, 3  // Second Triangle
+	};
+
+	glm::vec3 CubePositions[] =
+	{
+		glm::vec3(0.1f,  0.1f,  0.1f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
 	unsigned int VBO, VAO, EBO;
@@ -76,25 +126,18 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	//
 	// Working with texture - Start
 	//
-
-	float texCoords[] = {
-		0.f, 0.f, // Bottom Left
-		1.f, 0.f, // Bottom Right
-		0.f, 1.f // Top Center
-	};
-
 
 	// Texture #1 - Wood
 	unsigned int texture1, texture2;
@@ -102,15 +145,16 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	// Set texture parameters for overlay
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Set texture parameters for filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Loading and Generating a texture
 	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("textures/container.jpg", &width, &height, &nrChannels, 0);
 	if (data)
 	{
@@ -132,10 +176,10 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Set texture parameters for filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	stbi_set_flip_vertically_on_load(true);
+	
 
 	data = stbi_load("textures/awesomeface.png", &width, &height, &nrChannels, 0);
 	if (data)
@@ -152,22 +196,19 @@ int main()
 	// Working with texture - Finish
 	//
 
-
 	OurShader.Use();
-	glUniform1i(glGetUniformLocation(OurShader.ID, "texture1"), 0);
+	OurShader.SetInt("texture1", 0);
 	OurShader.SetInt("texture2", 1);
 
-	// Rotate and Scale
-	//glm::mat4 Trans = glm::mat4(1.f);
-	//Trans = glm::rotate(Trans, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
-	//Trans = glm::scale(Trans, glm::vec3(0.5f, 0.5f, 0.5f));
+	// Enable global state for Depth Test
+	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(Window)) 
 	{
 		processInput(Window);
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
@@ -176,27 +217,38 @@ int main()
 
 		OurShader.SetFloat("transl", MIX_MODIFICATOR);
 
-		// Rotate and Move
-		glm::mat4 TransRot = glm::mat4(1.f);
-		TransRot = glm::translate(TransRot, glm::vec3(0.5f, -0.5f, 0.f));
-		TransRot = glm::rotate(TransRot, (float)glfwGetTime(), glm::vec3(0.f, 0.f, 1.f));
-
-		OurShader.SetMat("Transform", glm::value_ptr(TransRot));
-
 		OurShader.Use();
+
+		// Define Model Matrix
+		//glm::mat4 Model = glm::mat4(1.f);
+		//Model = glm::rotate(Model, (float)glfwGetTime() * glm::radians(50.f), glm::vec3(0.5f, 1.f, 0.f));
+
+
+		// Define View Matrix
+		glm::mat4 View = glm::mat4(1.f);
+		View = glm::translate(View, glm::vec3(0.f, 0.f, -3.f));
+
+		// Define Projection Matrix
+		glm::mat4 Projection = glm::mat4(1.f);
+		Projection = glm::perspective(glm::radians(45.f), (float)(WIN_WIDTH / WIN_HEIGHT), 0.1f, 100.f);
+
+		// Set Matrixes to the Shader
+		//OurShader.SetMat("Model", glm::value_ptr(Model));
+		OurShader.SetMat("View", &View[0][0]);
+		OurShader.SetMat("Projection", glm::value_ptr(Projection));
+
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+		for (unsigned int i = 0; i < 10; ++i)
+		{
+			glm::mat4 Model = glm::mat4(1.f);
+			Model = glm::translate(Model, CubePositions[i]);
+			const float Angle = 100.f * (i + (float)glfwGetTime());
+			Model = glm::rotate(Model, glm::radians(Angle), glm::vec3(1.f, 0.3f, 0.5f));
+			OurShader.SetMat("Model", glm::value_ptr(Model));
 
-		// Make a copy of the figure
-		TransRot = glm::mat4(1.f);
-		TransRot = glm::translate(TransRot, glm::vec3(-0.5f, 0.5f, 0.f));
-		const float SinScale = sin(glfwGetTime());
-		TransRot = glm::scale(TransRot, glm::vec3(SinScale));
-
-		OurShader.SetMat("Transform", glm::value_ptr(TransRot));
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
