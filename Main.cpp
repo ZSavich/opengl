@@ -223,19 +223,20 @@ int main()
 		//glm::mat4 Model = glm::mat4(1.f);
 		//Model = glm::rotate(Model, (float)glfwGetTime() * glm::radians(50.f), glm::vec3(0.5f, 1.f, 0.f));
 
-
 		// Define View Matrix
 		glm::mat4 View = glm::mat4(1.f);
 		View = glm::translate(View, glm::vec3(0.f, 0.f, -3.f));
 
 		// Define Projection Matrix
 		glm::mat4 Projection = glm::mat4(1.f);
-		const float SinFOV = sin(glfwGetTime()) * 90.f;
-		std::cout << "SinFOV = " << SinFOV << std::endl;
-		Projection = glm::perspective(glm::radians(SinFOV), (float)(WIN_WIDTH / WIN_HEIGHT), 0.1f, 100.f);
+		float FOV = 45.f;
+		//FOV *= sin(glfwGetTime()); // Lesson 8,  Task #1 Test FOV param; 
+		//std::cout << "SinFOV = " << FOV << std::endl;
+		Projection = glm::perspective(glm::radians(FOV), (float)(WIN_WIDTH / WIN_HEIGHT), 0.1f, 100.f);
 
 		// Set Matrixes to the Shader
 		//OurShader.SetMat("Model", glm::value_ptr(Model));
+
 		OurShader.SetMat("View", &View[0][0]);
 		OurShader.SetMat("Projection", glm::value_ptr(Projection));
 
@@ -243,11 +244,17 @@ int main()
 
 		for (unsigned int i = 0; i < 10; ++i)
 		{
+			//glm::mat4 View = glm::mat4(1.f); // Lesson 8, Task #2: Complete translation for some directions
+			//View = glm::translate(View, glm::vec3(0.f, 0.f, -3.f) * (float)glfwGetTime());
+
 			glm::mat4 Model = glm::mat4(1.f);
 			Model = glm::translate(Model, CubePositions[i]);
+			//const float Angle = i % 3 ? 0 : 100.f * (i + (float)glfwGetTime()); // Lesson 8, Task #3: Rotate every third cube including the first
 			const float Angle = 100.f * (i + (float)glfwGetTime());
 			Model = glm::rotate(Model, glm::radians(Angle), glm::vec3(1.f, 0.3f, 0.5f));
+
 			OurShader.SetMat("Model", glm::value_ptr(Model));
+			//OurShader.SetMat("View", &View[0][0]);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
