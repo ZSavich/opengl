@@ -230,7 +230,9 @@ int main()
 
 		// Define Projection Matrix
 		glm::mat4 Projection = glm::mat4(1.f);
-		Projection = glm::perspective(glm::radians(45.f), (float)(WIN_WIDTH / WIN_HEIGHT), 0.1f, 100.f);
+		const float SinFOV = sin(glfwGetTime()) * 90.f;
+		std::cout << "SinFOV = " << SinFOV << std::endl;
+		Projection = glm::perspective(glm::radians(SinFOV), (float)(WIN_WIDTH / WIN_HEIGHT), 0.1f, 100.f);
 
 		// Set Matrixes to the Shader
 		//OurShader.SetMat("Model", glm::value_ptr(Model));
